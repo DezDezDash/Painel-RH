@@ -545,8 +545,10 @@
   <!-- ── ALERTAS DE PRAZO ── -->
   <div class="section-title">Alertas · Avaliações nos Próximos 10 Dias</div>
 
-  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;align-items:center">
     <span style="font-size:11px;color:var(--muted);align-self:center;text-transform:uppercase;letter-spacing:.07em">Filtrar:</span>
+    <input id="af-nome" type="text" placeholder="🔍 Buscar nome…" oninput="buildAlerts()"
+      style="background:var(--card);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:5px 10px;font-size:12px;font-family:inherit;width:180px">
     <select id="af-loja" onchange="buildAlerts()" style="background:var(--card);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:5px 10px;font-size:12px;font-family:inherit">
       <option value="">Todas as lojas</option>
       <option>CAM</option><option>SLM</option><option>CAX</option><option>CAV</option>
@@ -684,6 +686,14 @@
         <div class="table-title">Transferências Recebidas</div>
         <div class="table-desc-text">Funcionários ativos vindos de outra unidade DezDez</div>
       </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+        <input id="transf-nome" type="text" placeholder="🔍 Buscar nome…" oninput="buildTransfTable()"
+          style="background:var(--card);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:4px 10px;font-size:12px;font-family:inherit;width:160px">
+        <select id="transf-loja" onchange="buildTransfTable()" style="background:var(--card);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:4px 10px;font-size:12px;font-family:inherit">
+          <option value="">Todas as lojas</option>
+          <option>CAM</option><option>SLM</option><option>CAX</option><option>CAV</option>
+        </select>
+      </div>
     </div>
     <div class="table-scroll-wrap"><table id="tableTransf">
       <thead>
@@ -705,6 +715,14 @@
       <div>
         <div class="table-title">Histórico de Desligamentos</div>
         <div class="table-desc-text">Todos os colaboradores desligados no período registrado</div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+        <input id="deslig-nome" type="text" placeholder="🔍 Buscar nome…" oninput="buildDesligTable()"
+          style="background:var(--card);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:4px 10px;font-size:12px;font-family:inherit;width:160px">
+        <select id="deslig-loja" onchange="buildDesligTable()" style="background:var(--card);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:4px 10px;font-size:12px;font-family:inherit">
+          <option value="">Todas as lojas</option>
+          <option>CAM</option><option>SLM</option><option>CAX</option><option>CAV</option>
+        </select>
       </div>
     </div>
     <div class="table-scroll-wrap"><table id="tableDeslig">
@@ -739,6 +757,8 @@
         <div class="table-desc-text">Ativos sem desligamento · ordenados por score de risco (prazo vencido + área crítica + sem avaliação)</div>
       </div>
       <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <input id="risco-nome" type="text" placeholder="🔍 Buscar nome…" oninput="buildRisco()"
+          style="background:var(--card);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:5px 10px;font-size:12px;font-family:inherit;width:160px">
         <select id="risco-loja" onchange="buildRisco()" style="background:var(--card);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:5px 10px;font-size:12px;font-family:inherit">
           <option value="">Todas as lojas</option>
           <option>CAM</option><option>SLM</option><option>CAX</option><option>CAV</option>
@@ -964,6 +984,15 @@
         <div class="table-title">Detalhamento por Loja e Mês</div>
         <div class="table-desc-text">Ordenado por custo total decrescente</div>
       </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+        <select id="resc-loja-tab" onchange="buildRescisao()" style="background:var(--card);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:4px 10px;font-size:12px;font-family:inherit">
+          <option value="">Todas as lojas</option>
+          <option>CAM</option><option>SLM</option><option>CAX</option><option>CAV</option>
+        </select>
+        <select id="resc-mes-tab" onchange="buildRescisao()" style="background:var(--card);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:4px 10px;font-size:12px;font-family:inherit">
+          <option value="">Todos os meses</option>
+        </select>
+      </div>
     </div>
     <div class="table-scroll-wrap" style="overflow-x:auto;-webkit-overflow-scrolling:touch">
     <table style="min-width:700px">
@@ -1044,7 +1073,14 @@
       </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
         <input id="he-busca" type="text" placeholder="🔍 Buscar colaborador…" oninput="buildHeRanking()"
-          style="background:var(--card);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:4px 10px;font-size:12px;font-family:inherit;width:200px;outline:none">
+          style="background:var(--card);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:4px 10px;font-size:12px;font-family:inherit;width:180px;outline:none">
+        <select id="he-loja-rank" onchange="buildHeRanking()" style="background:var(--card);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:4px 8px;font-size:12px;font-family:inherit">
+          <option value="">Todas as lojas</option>
+          <option>CAM</option><option>SLM</option><option>CAX</option><option>CAV</option>
+        </select>
+        <select id="he-mes-rank" onchange="buildHeRanking()" style="background:var(--card);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:4px 8px;font-size:12px;font-family:inherit">
+          <option value="">Todos os meses</option>
+        </select>
         <span style="font-size:10px;color:var(--muted)">Limiar crítico:</span>
         <select id="he-limiar" onchange="buildHeRanking()" style="background:var(--card);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:4px 8px;font-size:12px;font-family:inherit">
           <option value="40">40h (padrão)</option>
@@ -1652,11 +1688,14 @@ function buildAlerts() {
   const lojaF = (document.getElementById('af-loja')||{}).value  || '';
   const areaF = (document.getElementById('af-area')||{}).value  || '';
   const funcF = (document.getElementById('af-funcao')||{}).value|| '';
+  const nomeF = (document.getElementById('af-nome')||{}).value  || '';
+  const nomeLower = nomeF.trim().toLowerCase();
 
   let d = filteredData().filter(r => !r.desligamento && !r.transferido);
-  if (lojaF) d = d.filter(r => r.loja  === lojaF);
-  if (areaF) d = d.filter(r => r.area  === areaF);
-  if (funcF) d = d.filter(r => normFuncao(r.funcao) === funcF);
+  if (lojaF)    d = d.filter(r => r.loja === lojaF);
+  if (areaF)    d = d.filter(r => r.area === areaF);
+  if (funcF)    d = d.filter(r => normFuncao(r.funcao) === funcF);
+  if (nomeLower) d = d.filter(r => r.nome.toLowerCase().includes(nomeLower));
 
   const alerts45 = [], alerts90 = [];
 
@@ -1700,30 +1739,44 @@ function buildAlerts() {
 //  TABELA TRANSFERIDOS
 // ─────────────────────────────────────────────
 function buildTransfTable() {
-  const d = filteredData().filter(r => r.transferido);
+  const lojaF  = (document.getElementById('transf-loja')||{}).value || '';
+  const nomeF  = ((document.getElementById('transf-nome')||{}).value||'').trim().toLowerCase();
+  let d = filteredData().filter(r => r.transferido);
+  if (lojaF)  d = d.filter(r => r.loja === lojaF);
+  if (nomeF)  d = d.filter(r => r.nome.toLowerCase().includes(nomeF));
   const tbody = document.getElementById('bodyTransf');
   if (!d.length) {
     tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;padding:24px;color:var(--muted)">Nenhum transferido na seleção atual.</td></tr>`;
     return;
   }
-  tbody.innerHTML = d.map(r => `
-    <tr>
+  tbody.innerHTML = d.map(r => {
+    let nomeDisplay = r.nome;
+    if (nomeF) {
+      const idx = r.nome.toLowerCase().indexOf(nomeF);
+      if (idx >= 0) nomeDisplay = r.nome.slice(0,idx) + `<mark style="background:rgba(249,115,22,.3);color:var(--text);border-radius:2px;padding:0 2px">${r.nome.slice(idx,idx+nomeF.length)}</mark>` + r.nome.slice(idx+nomeF.length);
+    }
+    return `<tr>
       <td style="color:var(--muted)">${r.mat}</td>
-      <td style="font-weight:500;font-size:13px">${r.nome}</td>
+      <td style="font-weight:500;font-size:13px">${nomeDisplay}</td>
       <td><span class="badge badge-${r.loja.toLowerCase()}">${r.loja}</span></td>
       <td><span class="badge badge-ativo">Ativo</span></td>
-    </tr>`).join('');
+    </tr>`;
+  }).join('');
 }
 
 // ─────────────────────────────────────────────
 //  TABELA DESLIGAMENTOS
 // ─────────────────────────────────────────────
 function buildDesligTable() {
-  const d = filteredData().filter(r=>r.desligamento && !r.transferido);
+  const lojaF = (document.getElementById('deslig-loja')||{}).value || '';
+  const nomeF = ((document.getElementById('deslig-nome')||{}).value||'').trim().toLowerCase();
+  let d = filteredData().filter(r => r.desligamento && !r.transferido);
+  if (lojaF) d = d.filter(r => r.loja === lojaF);
+  if (nomeF) d = d.filter(r => r.nome.toLowerCase().includes(nomeF));
   d.sort((a,b)=>{ const da=parseDate(b.desligamento), db=parseDate(a.desligamento); return (da||0)-(db||0); });
   const tbody = document.getElementById('bodyDeslig');
   if (!d.length) {
-    tbody.innerHTML = `<tr><td colspan="10" style="text-align:center;padding:24px;color:var(--muted)">Nenhum desligamento registrado.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="10" style="text-align:center;padding:24px;color:var(--muted)">Nenhum desligamento encontrado para os filtros selecionados.</td></tr>`;
     return;
   }
   tbody.innerHTML = d.map(r => {
@@ -1731,9 +1784,14 @@ function buildDesligTable() {
     const motNorm = normMotivo(r);
     const tipoNorm = normTipoRescisao(r);
     const motClass = motNorm==='Empresa' ? 'badge-empresa' : motNorm==='Empregado' ? 'badge-emp' : '';
+    let nomeDisplay = r.nome;
+    if (nomeF) {
+      const idx = r.nome.toLowerCase().indexOf(nomeF);
+      if (idx >= 0) nomeDisplay = r.nome.slice(0,idx) + `<mark style="background:rgba(249,115,22,.3);color:var(--text);border-radius:2px;padding:0 2px">${r.nome.slice(idx,idx+nomeF.length)}</mark>` + r.nome.slice(idx+nomeF.length);
+    }
     return `<tr>
       <td style="color:var(--muted)">${r.mat}</td>
-      <td style="font-weight:500;font-size:12px">${r.nome}</td>
+      <td style="font-weight:500;font-size:12px">${nomeDisplay}</td>
       <td><span class="badge badge-${r.loja.toLowerCase()}">${r.loja}</span></td>
       <td style="color:var(--muted);font-size:12px">${r.area||'—'}</td>
       <td style="font-size:12px">${normFuncao(r.funcao)||'—'}</td>
@@ -1794,9 +1852,10 @@ function buildMonthly() {
     if (r.admissao    && /^\d{4}-\d{2}/.test(r.admissao))    monthSet.add(r.admissao.slice(0,7));
     if (r.desligamento && /^\d{4}-\d{2}/.test(r.desligamento)) monthSet.add(r.desligamento.slice(0,7));
   });
-  // All valid months
+  // All valid months — limita até o mês atual
+  const currentYM = `${TODAY.getFullYear()}-${String(TODAY.getMonth()+1).padStart(2,'0')}`;
   const allMonths = [...monthSet]
-    .filter(m => m >= '2025-01' && m <= (TODAY.getFullYear()+1)+'-12')
+    .filter(m => m >= '2025-01' && m <= currentYM)
     .sort();
 
   populateMonthSelects(allMonths);
@@ -1952,12 +2011,14 @@ function buildRisco() {
   const d = filteredData().filter(r => !r.desligamento && !r.transferido);
   const lojaF  = document.getElementById('risco-loja').value;
   const nivelF = document.getElementById('risco-nivel').value;
+  const nomeF  = ((document.getElementById('risco-nome')||{}).value||'').trim().toLowerCase();
 
   const scored = d
     .map(r => ({ ...r, ...calcRiscoScore(r) }))
     .filter(r => r.score > 0)
     .filter(r => !lojaF  || r.loja  === lojaF)
     .filter(r => !nivelF || r.nivel === nivelF)
+    .filter(r => !nomeF  || r.nome.toLowerCase().includes(nomeF))
     .sort((a, b) => b.score - a.score);
 
   // KPIs
@@ -3254,9 +3315,27 @@ function buildHeCharts() {
 }
 
 function buildHeRanking() {
-  const limiar = +(document.getElementById('he-limiar')?.value||40);
-  const busca = (document.getElementById('he-busca')?.value||'').trim().toLowerCase();
-  const ind = getHeInd();
+  const limiar  = +(document.getElementById('he-limiar')?.value||40);
+  const busca   = (document.getElementById('he-busca')?.value||'').trim().toLowerCase();
+  const lojaF   = (document.getElementById('he-loja-rank')?.value||'');
+  const mesF    = (document.getElementById('he-mes-rank')?.value||'');
+  const ind     = getHeInd();
+
+  // Popular select de meses se ainda não foi feito
+  const mesSelect = document.getElementById('he-mes-rank');
+  if (mesSelect && mesSelect.options.length <= 1) {
+    const mesesDisp = [...new Set(ind.map(r => r.mes))].sort((a,b) => {
+      const mmap = {Jan:1,Fev:2,Mar:3,Abr:4,Mai:5,Jun:6,Jul:7,Ago:8,Set:9,Out:10,Nov:11,Dez:12};
+      const [ma,ya] = a.split('/'); const [mb,yb] = b.split('/');
+      return (+ya - +yb) || (mmap[ma] - mmap[mb]);
+    });
+    mesesDisp.forEach(m => {
+      const opt = document.createElement('option');
+      opt.value = m; opt.textContent = m;
+      mesSelect.appendChild(opt);
+    });
+    if (mesF) mesSelect.value = mesF;
+  }
 
   // group by nome+loja+mes, sum hours
   const map = {};
@@ -3270,6 +3349,8 @@ function buildHeRanking() {
   const rows = Object.values(map)
     .map(r=>({ ...r, total:r.h50+r.h100 }))
     .filter(r => !busca || r.nome.toLowerCase().includes(busca))
+    .filter(r => !lojaF || r.loja === lojaF)
+    .filter(r => !mesF  || r.mes  === mesF)
     .sort((a,b)=>b.total-a.total);
 
   const tbody = document.getElementById('bodyHeRanking');
@@ -3407,7 +3488,31 @@ function buildRescisao() {
   if (chartRescComp)  { chartRescComp.destroy();  chartRescComp  = null; }
   if (chartRescMedio) { chartRescMedio.destroy();  chartRescMedio = null; }
 
-  const d = getRescData();
+  const lojaF = (document.getElementById('resc-loja-tab')?.value||'');
+  const mesF  = (document.getElementById('resc-mes-tab')?.value||'');
+
+  const dAll = getRescData();
+
+  // Popular select de meses se ainda não foi feito
+  const mesSelect = document.getElementById('resc-mes-tab');
+  if (mesSelect && mesSelect.options.length <= 1) {
+    const mmap = {Jan:1,Fev:2,Mar:3,Abr:4,Mai:5,Jun:6,Jul:7,Ago:8,Set:9,Out:10,Nov:11,Dez:12};
+    const mesesDisp = [...new Set(dAll.map(r => r.mes))].sort((a,b) => {
+      const [ma,ya] = a.split('/'); const [mb,yb] = b.split('/');
+      return (+ya - +yb) || (mmap[ma] - mmap[mb]);
+    });
+    mesesDisp.forEach(m => {
+      const opt = document.createElement('option');
+      opt.value = m; opt.textContent = m;
+      mesSelect.appendChild(opt);
+    });
+    if (mesF) mesSelect.value = mesF;
+  }
+
+  let d = dAll;
+  if (lojaF) d = d.filter(r => r.loja === lojaF);
+  if (mesF)  d = d.filter(r => r.mes  === mesF);
+
   const fmt = v => v ? 'R$'+v.toLocaleString('pt-BR',{minimumFractionDigits:0,maximumFractionDigits:0}) : '—';
 
   const custoFn = r => r.liqResc + r.multaEmp + r.fgtsResc;
