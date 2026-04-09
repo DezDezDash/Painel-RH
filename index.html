@@ -458,7 +458,7 @@
   }
 
   /* KPI HE e Rescisão — 4 colunas no desktop */
-  #he-kpi-grid, #resc-kpi-grid { grid-template-columns: repeat(4, 1fr); }
+  #he-kpi-grid, #resc-kpi-grid { grid-template-columns: repeat(5, 1fr); }
 
   /* Wrapper scroll para tabelas */
   .table-scroll-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
@@ -973,7 +973,7 @@
 
   <div class="resc-info-banner" style="background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.18);border-radius:10px;padding:12px 16px;margin-bottom:18px;font-size:12px;color:var(--muted);line-height:1.6">
     📋 <strong style="color:var(--text)">Fonte:</strong> Resumo da Folha (por empresa/competência).
-    Custo total = Líquido rescisão + Multa Art.480 + FGTS rescisório.
+    Custo total = Líquido rescisão + FGTS rescisório. Ressarcimento Art.480 é receita (não entra no custo).
     <strong style="color:var(--yellow)">Rubrica 51</strong> (liq. resc.) · <strong style="color:var(--yellow)">842</strong> (multa) · <strong style="color:var(--yellow)">FGTS resc.</strong> = informativos do resumo.
   </div>
 
@@ -1002,7 +1002,7 @@
         <th>Loja</th>
         <th style="text-align:right">Demitidos</th>
         <th style="text-align:right">Líq. Rescisão</th>
-        <th style="text-align:right">Multa Art.480</th>
+        <th style="text-align:right">Ressarc. Art.480 ↑</th>
         <th style="text-align:right">FGTS Rescisório</th>
         <th style="text-align:right">incl. 40%</th>
         <th style="text-align:right">Custo Total</th>
@@ -1104,7 +1104,7 @@
       </tr></thead>
       <tbody id="bodyHeRanking"></tbody>
     </table></div>
-    <div style="padding:10px 16px;font-size:11px;color:var(--muted)">* Custo estimado proporcional ao custo total de HE da loja no mês (indicativo)</div>
+    <div style="padding:10px 16px;font-size:11px;color:var(--muted)">* Custo estimado = horas individuais × taxa média por hora da loja no mês (he50v/he50h e he100v/he100h)</div>
   </div>
 
   <!-- Alertas estruturais -->
@@ -3005,7 +3005,8 @@ const folhaData = [
 //  CUSTO DE RESCISÃO — DADOS (extraídos dos RESUMO da Folha)
 //  liqResc  = rubrica 51 — líquido rescisão efetivamente pago
 //  multaEmp = rubrica 842 — Multa Art.480 (empresa paga ao demitir)
-//  fgtsResc = FGTS rescisório total (inclui 40%, 13º resc., aviso prévio)
+//  fgtsResc = FGTS rescisório (rubricas 23 + 35 + 9637: rescisão, 13º resc., aviso prévio)
+//             NÃO inclui FGTS 40% (rubrica 32) — este é lançado separadamente em fgts40
 //  fgts40   = apenas o FGTS 40% (multa)
 //  nDeslig  = situações → Demitido
 //  Nota: liqResc = null quando rubrica 51 não consta no resumo
@@ -3056,6 +3057,11 @@ const rescisaoData = [
   { mes:'Out/25', loja:'CAV', nDeslig:1, liqResc:4036.00,  multaEmp:0,       fgtsResc:411.29,  fgts40:117.51 },
   { mes:'Out/25', loja:'CAX', nDeslig:0, liqResc:0,        multaEmp:0,       fgtsResc:0,        fgts40:0      },
   { mes:'Out/25', loja:'SLM', nDeslig:2, liqResc:5770.00,  multaEmp:1666.67, fgtsResc:489.11,  fgts40:130.22 },
+  // Novembro 2025 — zero desligamentos em todas as lojas
+  { mes:'Nov/25', loja:'CAM', nDeslig:0, liqResc:0, multaEmp:0, fgtsResc:0, fgts40:0 },
+  { mes:'Nov/25', loja:'CAV', nDeslig:0, liqResc:0, multaEmp:0, fgtsResc:0, fgts40:0 },
+  { mes:'Nov/25', loja:'CAX', nDeslig:0, liqResc:0, multaEmp:0, fgtsResc:0, fgts40:0 },
+  { mes:'Nov/25', loja:'SLM', nDeslig:0, liqResc:0, multaEmp:0, fgtsResc:0, fgts40:0 },
   // Dezembro 2025
   { mes:'Dez/25', loja:'CAM', nDeslig:10, liqResc:15298.33, multaEmp:5098.11, fgtsResc:1019.02, fgts40:297.67 },
   { mes:'Dez/25', loja:'CAV', nDeslig:0,  liqResc:0,        multaEmp:0,       fgtsResc:0,        fgts40:0      },
@@ -3102,10 +3108,11 @@ function buildFolhaComparativo() {
   const agg = lojas.map(l => {
     const rows  = d.filter(r => r.loja === l);
     const rrows = rescFiltrado.filter(r => r.loja === l);
-    const liqR  = rrows.reduce((a,r) => a + (r.liqResc  || 0), 0);
-    const multR = rrows.reduce((a,r) => a + (r.multaEmp || 0), 0);
-    const fgtsR = rrows.reduce((a,r) => a + (r.fgtsResc || 0), 0);
-    const nDes  = rrows.reduce((a,r) => a + (r.nDeslig  || 0), 0);
+    const liqR    = rrows.reduce((a,r) => a + (r.liqResc  || 0), 0);
+    const multR   = rrows.reduce((a,r) => a + (r.multaEmp || 0), 0);  // receita (Art.480)
+    const fgtsR   = rrows.reduce((a,r) => a + (r.fgtsResc || 0), 0);
+    const fgts40R = rrows.reduce((a,r) => a + (r.fgts40   || 0), 0);  // custo FGTS 40%
+    const nDes    = rrows.reduce((a,r) => a + (r.nDeslig  || 0), 0);
     return {
       loja:   l,
       prov:   rows.reduce((a,r) => a + r.prov, 0),
@@ -3113,8 +3120,8 @@ function buildFolhaComparativo() {
       inss:   rows.reduce((a,r) => a + r.inss, 0),
       fgts:   rows.reduce((a,r) => a + r.fgts, 0),
       meses:  rows.length,
-      liqR, multR, fgtsR, nDes,
-      rescTotal: liqR + multR + fgtsR,
+      liqR, multR, fgtsR, fgts40R, nDes,
+      rescTotal: liqR + fgtsR + fgts40R,  // custo real: liq.resc + FGTS rescisório + FGTS 40%
     };
   });
 
@@ -3131,6 +3138,7 @@ function buildFolhaComparativo() {
     liqR:      agg.reduce((a,r) => a + r.liqR,       0),
     multR:     agg.reduce((a,r) => a + r.multR,      0),
     fgtsR:     agg.reduce((a,r) => a + r.fgtsR,      0),
+    fgts40R:   agg.reduce((a,r) => a + r.fgts40R,    0),
     nDes:      agg.reduce((a,r) => a + r.nDes,       0),
   };
 
@@ -3140,7 +3148,7 @@ function buildFolhaComparativo() {
         <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:15px;color:var(--empresa);letter-spacing:.04em">REDE</div>
         <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em">Consolidado — todas as lojas</div>
       </div>
-      <div class="rede-inner-grid" style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px">
+      <div class="rede-inner-grid" style="display:grid;grid-template-columns:repeat(6,1fr);gap:12px">
         <div style="background:var(--surface);border-radius:10px;padding:12px 14px;border:1px solid var(--border)">
           <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px">Proventos brutos</div>
           <div class="rede-val" style="font-family:monospace;font-weight:700;font-size:16px;color:var(--text)">${fmt(rede.prov)}</div>
@@ -3163,7 +3171,12 @@ function buildFolhaComparativo() {
         <div style="background:rgba(239,68,68,.08);border-radius:10px;padding:12px 14px;border:1px solid rgba(239,68,68,.2)">
           <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px">Custo Rescisão</div>
           <div class="rede-val" style="font-family:monospace;font-weight:700;font-size:16px;color:var(--red)">${fmt(rede.rescTotal)}</div>
-          <div style="font-size:10px;color:var(--muted);margin-top:4px">${rede.nDes} deslig. · multa ${fmt(rede.multR)}</div>
+          <div style="font-size:10px;color:var(--muted);margin-top:4px">${rede.nDes} deslig. · FGTS 40%: ${fmt(rede.fgts40R)}</div>
+        </div>
+        <div style="background:rgba(16,185,129,.07);border-radius:10px;padding:12px 14px;border:1px solid rgba(16,185,129,.2)">
+          <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px">Ressarc. Art.480 ↑</div>
+          <div class="rede-val" style="font-family:monospace;font-weight:700;font-size:16px;color:var(--green)">${fmt(rede.multR)}</div>
+          <div style="font-size:10px;color:var(--muted);margin-top:4px">Receita — aviso não cumprido</div>
         </div>
       </div>
     </div>`;
@@ -3183,23 +3196,27 @@ function buildFolhaComparativo() {
         <span class="folha-row-label" style="color:var(--red)">Custo rescisão</span>
         <span class="folha-row-val red">${fmtOr0(r.rescTotal)}</span>
       </div>
-      ${r.rescTotal > 0 ? `
+      ${r.rescTotal > 0 || r.multR > 0 ? `
       <div class="folha-row" style="margin-top:2px">
         <span class="folha-row-label" style="font-size:10px">Liq. rescisão</span>
         <span class="folha-row-val" style="font-size:11px">${fmtOr0(r.liqR)}</span>
-      </div>
-      <div class="folha-row">
-        <span class="folha-row-label" style="font-size:10px">Multa Art.480</span>
-        <span class="folha-row-val" style="font-size:11px">${fmtOr0(r.multR)}</span>
       </div>
       <div class="folha-row">
         <span class="folha-row-label" style="font-size:10px">FGTS rescisório</span>
         <span class="folha-row-val" style="font-size:11px">${fmtOr0(r.fgtsR)}</span>
       </div>
       <div class="folha-row">
+        <span class="folha-row-label" style="font-size:10px">FGTS 40% (s/ justa causa)</span>
+        <span class="folha-row-val" style="font-size:11px">${fmtOr0(r.fgts40R)}</span>
+      </div>
+      <div class="folha-row">
         <span class="folha-row-label" style="font-size:10px">Desligamentos</span>
         <span class="folha-row-val" style="font-size:11px">${r.nDes}</span>
-      </div>` : ''}
+      </div>
+      ${r.multR > 0 ? `<div class="folha-row" style="margin-top:6px;border-top:1px solid rgba(16,185,129,.2);padding-top:6px">
+        <span class="folha-row-label" style="font-size:10px;color:var(--green)">Ressarc. Art.480 ↑</span>
+        <span class="folha-row-val" style="font-size:11px;color:var(--green)">${fmt(r.multR)}</span>
+      </div>` : ''}` : ''}
     </div>`).join('');
 }
 
@@ -3481,6 +3498,17 @@ function buildHeRanking() {
           + r.nome.slice(idx+busca.length);
       }
     }
+    // custo estimado: taxa/hora da loja no mês × horas individuais
+    const lojaRef = heLojaData.find(d => d.loja === r.loja && d.mes === r.mes);
+    let custoEst = null;
+    if (lojaRef) {
+      const tx50  = lojaRef.he50h  > 0 ? lojaRef.he50v  / lojaRef.he50h  : 0;
+      const tx100 = lojaRef.he100h > 0 ? lojaRef.he100v / lojaRef.he100h : 0;
+      custoEst = r.h50 * tx50 + r.h100 * tx100;
+    }
+    const custoEstFmt = custoEst !== null && custoEst > 0
+      ? 'R$' + Math.round(custoEst).toLocaleString('pt-BR')
+      : '<span style="color:var(--muted)">—</span>';
     return `<tr style="${busca?'background:rgba(249,115,22,.04)':''}">
       <td>${badge}</td>
       <td style="font-weight:500;font-size:12px">${nomeDisplay}</td>
@@ -3489,7 +3517,7 @@ function buildHeRanking() {
       <td style="text-align:right;font-family:monospace;font-size:12px">${r.h50.toFixed(1)}h</td>
       <td style="text-align:right;font-family:monospace;font-size:12px;color:${r.h100>10?'var(--red)':'inherit'}">${r.h100.toFixed(1)}h</td>
       <td style="text-align:right;font-family:monospace;font-size:13px;font-weight:700">${r.total.toFixed(1)}h</td>
-      <td style="text-align:right;font-size:12px;color:var(--muted)">—</td>
+      <td style="text-align:right;font-family:monospace;font-size:12px;color:var(--yellow)">${custoEstFmt}</td>
       <td>${situacao}</td>
     </tr>`;
   }).join('');
@@ -3607,19 +3635,23 @@ function buildRescisao() {
 
   const fmt = v => v ? 'R$'+v.toLocaleString('pt-BR',{minimumFractionDigits:0,maximumFractionDigits:0}) : '—';
 
-  const custoFn = r => r.liqResc + r.multaEmp + r.fgtsResc;
+  // custoFn = custo real para a empresa (exclui multaEmp que é receita)
+  const custoFn = r => (r.liqResc || 0) + (r.fgtsResc || 0) + (r.fgts40 || 0);
+  const ressarcFn = r => r.multaEmp || 0;
 
   // KPIs
   const totCusto   = d.reduce((a,r)=>a+custoFn(r), 0);
   const totDeslig  = d.reduce((a,r)=>a+r.nDeslig, 0);
-  const totMultas  = d.reduce((a,r)=>a+r.multaEmp+r.fgts40, 0);
+  const totFgts40  = d.reduce((a,r)=>a+(r.fgts40||0), 0);
+  const totRessarc = d.reduce((a,r)=>a+ressarcFn(r), 0);
   const medPorDem  = totDeslig ? totCusto/totDeslig : 0;
 
   document.getElementById('resc-kpi-grid').innerHTML = [
     { label:'Custo Total Rescisão', value: fmt(totCusto),   color: totCusto>10000?'red':'yellow', sub: `${d.length} registros` },
     { label:'Total Demitidos',      value: totDeslig,        color:'orange', sub:'período filtrado' },
-    { label:'Multas (480 + 40%)',   value: fmt(totMultas),   color: totMultas>2000?'red':'yellow', sub:'custo evitável' },
-    { label:'Custo Médio/Demitido', value: fmt(medPorDem),   color:'purple', sub:'referência de planejamento' },
+    { label:'FGTS 40% (s/ justa causa)', value: fmt(totFgts40), color: totFgts40>2000?'red':'yellow', sub:'custo de demissão imotivada' },
+    { label:'Ressarc. Art.480 ↑',   value: fmt(totRessarc), color:'green',  sub:'receita — aviso não cumprido' },
+    { label:'Custo Médio/Demitido', value: fmt(medPorDem),  color:'purple', sub:'referência de planejamento' },
   ].map(k=>`<div class="kpi-card ${k.color}">
     <div class="kpi-label">${k.label}</div>
     <div class="kpi-value" style="font-size:22px">${k.value}</div>
@@ -3642,7 +3674,7 @@ function buildRescisao() {
       <td><span class="badge badge-${r.loja.toLowerCase()}">${r.loja}</span></td>
       <td style="text-align:right;font-weight:700;color:${r.nDeslig>3?'var(--red)':r.nDeslig>1?'var(--yellow)':'var(--muted)'}">${r.nDeslig||'—'}</td>
       <td style="text-align:right;font-family:monospace;font-size:12px">${liqFmt}</td>
-      <td style="text-align:right;font-family:monospace;font-size:12px;color:${r.multaEmp>1000?'var(--red)':'inherit'}">${fmt(r.multaEmp)||'—'}</td>
+      <td style="text-align:right;font-family:monospace;font-size:12px;color:${r.multaEmp>0?'var(--green)':'var(--muted)'}">${r.multaEmp>0?fmt(r.multaEmp):'—'}</td>
       <td style="text-align:right;font-family:monospace;font-size:12px">${fmt(r.fgtsResc)||'—'}</td>
       <td style="text-align:right;font-family:monospace;font-size:11px;color:var(--muted)">${r.fgts40?fmt(r.fgts40):'—'}</td>
       <td style="text-align:right;font-family:monospace;font-size:13px;font-weight:700">${custo?fmt(custo):'—'}</td>
@@ -3660,7 +3692,7 @@ function buildRescisao() {
     <td colspan="2" style="padding:10px 16px">Total</td>
     <td style="text-align:right;padding:10px 16px">${totDeslig}</td>
     <td style="text-align:right;padding:10px 16px;font-family:monospace">${fmt(totLiq)}</td>
-    <td style="text-align:right;padding:10px 16px;font-family:monospace;color:var(--red)">${fmt(totMult)}</td>
+    <td style="text-align:right;padding:10px 16px;font-family:monospace;color:var(--green)">${fmt(totMult)}</td>
     <td style="text-align:right;padding:10px 16px;font-family:monospace">${fmt(totFgts)}</td>
     <td style="text-align:right;padding:10px 16px;font-family:monospace;color:var(--muted)">${fmt(totF40)}</td>
     <td style="text-align:right;padding:10px 16px;font-family:monospace;color:var(--accent)">${fmt(totCusto)}</td>
@@ -3684,7 +3716,7 @@ function buildRescisao() {
     type:'bar',
     data:{ labels:lojas, datasets:[
       { label:'Líq. Rescisão',  data:byLoja.map(r=>+r.liq.toFixed(0)),  backgroundColor:'#3b82f699', borderColor:'#3b82f6', borderWidth:2, borderRadius:4 },
-      { label:'Multa Art.480',  data:byLoja.map(r=>+r.mult.toFixed(0)), backgroundColor:'#ef444499', borderColor:'#ef4444', borderWidth:2, borderRadius:4 },
+      { label:'Ressarc. Art.480 ↑',data:byLoja.map(r=>+r.mult.toFixed(0)), backgroundColor:'#10b98199', borderColor:'#10b981', borderWidth:2, borderRadius:4 },
       { label:'FGTS Rescisório',data:byLoja.map(r=>+r.fgts.toFixed(0)), backgroundColor:'#f59e0b99', borderColor:'#f59e0b', borderWidth:2, borderRadius:4 },
     ]},
     options:{ plugins:{legend:{...baseLegend}}, scales:{
